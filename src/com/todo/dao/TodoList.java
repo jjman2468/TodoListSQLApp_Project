@@ -11,7 +11,11 @@ public class TodoList {
 	public TodoList() {
 		this.list = new ArrayList<TodoItem>();
 	}
-
+	
+	public int getSize() {
+		return list.size();
+	}
+	
 	public void addItem(TodoItem t) {
 		list.add(t);
 	}
@@ -19,11 +23,17 @@ public class TodoList {
 	public void deleteItem(TodoItem t) {
 		list.remove(t);
 	}
-
+	public void deleteItemByNumber(int num) {
+		list.remove(num-1);
+	}
 	void editItem(TodoItem t, TodoItem updated) {
 		int index = list.indexOf(t);
 		list.remove(index);
 		list.add(updated);
+	}
+	
+	public int getIndexOf(TodoItem t) {
+		return list.indexOf(t);
 	}
 
 	public ArrayList<TodoItem> getList() {
