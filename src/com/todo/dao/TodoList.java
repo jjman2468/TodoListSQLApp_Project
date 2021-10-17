@@ -22,7 +22,8 @@ public class TodoList {
 	 */
 
 	public int addItem(TodoItem t) {
-		String sql = "insert into list (title, category, desc, due_date, current_date)" + " values (?,?,?,?,?);";
+		String sql = "insert into list (title, category, desc, due_date, current_date, importance, time)"
+				+ " values (?,?,?,?,?,?,?);";
 		PreparedStatement pstmt;
 		int count = 0;
 
@@ -33,6 +34,8 @@ public class TodoList {
 			pstmt.setString(3, t.getDesc());
 			pstmt.setString(4, t.getDue_date());
 			pstmt.setString(5, t.getCurrent_date());
+			pstmt.setString(6, t.getImportance());
+			pstmt.setString(7, t.getTime());
 			count = pstmt.executeUpdate();
 			pstmt.close();
 		} catch (Exception e) {
@@ -64,7 +67,8 @@ public class TodoList {
 	 */
 
 	public int updateItem(TodoItem t) {
-		String sql = "update list set title=?, category=?, desc=?, due_date=?, current_date=?" + "where id = ?;";
+		String sql = "update list set title=?, category=?, desc=?, due_date=?, current_date=?, importance=?, time=?"
+				+ "where id = ?;";
 		PreparedStatement pstmt;
 		int count = 0;
 		try {
@@ -74,7 +78,9 @@ public class TodoList {
 			pstmt.setString(3, t.getDesc());
 			pstmt.setString(4, t.getDue_date());
 			pstmt.setString(5, t.getCurrent_date());
-			pstmt.setInt(6, t.getId());
+			pstmt.setString(6, t.getImportance());
+			pstmt.setString(7, t.getTime());
+			pstmt.setInt(8, t.getId());
 			count = pstmt.executeUpdate();
 			pstmt.close();
 		} catch (Exception e) {
@@ -98,10 +104,13 @@ public class TodoList {
 				int id = rs.getInt("id");
 				String category = rs.getString("category");
 				String title = rs.getString("title");
-				String description = rs.getString("memo");
+				String description = rs.getString("desc");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
-				TodoItem t = new TodoItem(title, description, category, due_date);
+				int is_complete = rs.getInt("is_complete");
+				String importance = rs.getString("importance");
+				String time = rs.getString("time");
+				TodoItem t = new TodoItem(title, description, category, due_date, is_complete, importance, time);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -128,10 +137,13 @@ public class TodoList {
 				int id = rs.getInt("id");
 				String category = rs.getString("category");
 				String title = rs.getString("title");
-				String description = rs.getString("memo");
+				String description = rs.getString("desc");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
-				TodoItem t = new TodoItem(title, description, category, due_date);
+				int is_complete = rs.getInt("is_complete");
+				String importance = rs.getString("importance");
+				String time = rs.getString("time");
+				TodoItem t = new TodoItem(title, description, category, due_date, is_complete, importance, time);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -155,10 +167,13 @@ public class TodoList {
 				int id = rs.getInt("id");
 				String category = rs.getString("category");
 				String title = rs.getString("title");
-				String description = rs.getString("memo");
+				String description = rs.getString("desc");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
-				TodoItem t = new TodoItem(title, description, category, due_date);
+				int is_complete = rs.getInt("is_complete");
+				String importance = rs.getString("importance");
+				String time = rs.getString("time");
+				TodoItem t = new TodoItem(title, description, category, due_date, is_complete, importance, time);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
@@ -183,14 +198,128 @@ public class TodoList {
 				int id = rs.getInt("id");
 				String category = rs.getString("category");
 				String title = rs.getString("title");
-				String description = rs.getString("memo");
+				String description = rs.getString("desc");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
-				TodoItem t = new TodoItem(title, description, category, due_date);
+				int is_complete = rs.getInt("is_complete");
+				String importance = rs.getString("importance");
+				String time = rs.getString("time");
+				TodoItem t = new TodoItem(title, description, category, due_date, is_complete, importance, time);
 				t.setId(id);
 				t.setCurrent_date(current_date);
 				list.add(t);
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return list;
+	}
+
+	public ArrayList<TodoItem> getCompleteList(int keyword) {
+		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
+		PreparedStatement pstmt;
+		try {
+			String sql = "SELECT * FROM list WHERE is_complete like?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, keyword);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String category = rs.getString("category");
+				String title = rs.getString("title");
+				String description = rs.getString("desc");
+				String due_date = rs.getString("due_date");
+				String current_date = rs.getString("current_Date");
+				int is_complete = rs.getInt("is_complete");
+				String importance = rs.getString("importance");
+				String time = rs.getString("time");
+				TodoItem t = new TodoItem(title, description, category, due_date, importance, time);
+				t.setId(id);
+				t.setCurrent_date(current_date);
+				t.setIs_complete(is_complete);
+				list.add(t);
+			}
+			pstmt.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public ArrayList<TodoItem> getListImportant(String impor) {
+
+		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
+		PreparedStatement pstmt;
+		/*
+		 * try { if (impor.equals("1")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1,
+		 * "1 or importance like 2 or importance like 3 or importance like 4 or importance like 5 or importance like 6 or importance like 7 or importance like 8 or importance like 9 or importance like 10"
+		 * ); } else if (impor.equals("2")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1,
+		 * "2 or importance like 3 or importance like 4 or importance like 5 or importance like 6 or importance like 7 or importance like 8 or importance like 9 or importance like 10"
+		 * ); } else if (impor.equals("3")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(2,
+		 * "3 or importance like 4 or importance like 5 or importance like 6 or importance like 7 or importance like 8 or importance like 9 or importance like 10"
+		 * ); } else if (impor.equals("4")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1,
+		 * "4 or importance like 5 or importance like 6 or importance like 7 or importance like 8 or importance like 9 or importance like 10"
+		 * ); } else if (impor.equals("5")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1,
+		 * "5 or importance like 6 or importance like 7 or importance like 8 or importance like 9 or importance like 10"
+		 * ); } else if (impor.equals("6")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1,
+		 * "6 or importance like 7 or importance like 8 or importance like 9 or importance like 10"
+		 * ); } else if (impor.equals("7")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1,
+		 * "7 or importance like 8 or importance like 9 or importance like 10"); } else
+		 * if (impor.equals("8")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1,
+		 * "8 or importance like 9 or importance like 10"); } else if
+		 * (impor.equals("9")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1, "9 or importance like 10"); }
+		 * else if (impor.equals("10")) { String sql =
+		 * "SELECT * FROM list WHERE importance like?"; pstmt =
+		 * conn.prepareStatement(sql); pstmt.setString(1, "10"); }
+		 */
+		try {
+			String sql = "SELECT * FROM list WHERE importance like?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, impor);
+			ResultSet rs = pstmt.executeQuery();
+			/*
+			 * String sql = "SELECT * FROM list WHERE importance like?"; pstmt =
+			 * conn.prepareStatement(sql); pstmt.setString(1, impor); ResultSet rs =
+			 * pstmt.executeQuery();
+			 */
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String category = rs.getString("category");
+				String title = rs.getString("title");
+				String description = rs.getString("desc");
+				String due_date = rs.getString("due_date");
+				String current_date = rs.getString("current_Date");
+				int is_complete = rs.getInt("is_complete");
+				String importance = rs.getString("importance");
+				String time = rs.getString("time");
+				TodoItem t = new TodoItem(title, description, category, due_date, importance, time);
+				t.setId(id);
+				t.setCurrent_date(current_date);
+				t.setIs_complete(is_complete);
+				list.add(t);
+			}
+			pstmt.close();
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -273,7 +402,7 @@ public class TodoList {
 	}
 
 	public int completeItem(int id) {
-		String sql = "update list set is_completed=1" + " where id = ?;";
+		String sql = "update list set is_complete=1" + " where id = ?;";
 		PreparedStatement pstmt;
 		int count = 0;
 		try {
@@ -291,8 +420,8 @@ public class TodoList {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(filename));
 			String line;
-			String sql = "insert into list (title, category, desc, due_date, current_date, is_completed)"
-					+ " values (?,?,?,?,?,?);";
+			String sql = "insert into list (title, category, desc, due_date, current_date, is_complete, importance, time)"
+					+ " values (?,?,?,?,?,?,?,?);";
 			int records = 0;
 			while ((line = br.readLine()) != null) {
 				StringTokenizer st = new StringTokenizer(line, "##");
@@ -301,7 +430,9 @@ public class TodoList {
 				String desc = st.nextToken();
 				String due_date = st.nextToken();
 				String current_date = st.nextToken();
-				String is_completed = st.nextToken();
+				String is_complete = st.nextToken();
+				String importance = st.nextToken();
+				String time = st.nextToken();
 
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, title);
@@ -309,7 +440,9 @@ public class TodoList {
 				pstmt.setString(3, desc);
 				pstmt.setString(4, due_date);
 				pstmt.setString(5, current_date);
-				pstmt.setString(6, is_completed);
+				pstmt.setString(6, is_complete);
+				pstmt.setString(7, importance);
+				pstmt.setString(8, time);
 				int count = pstmt.executeUpdate();
 				if (count > 0)
 					records++;

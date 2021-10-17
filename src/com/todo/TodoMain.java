@@ -38,12 +38,12 @@ public class TodoMain {
 				TodoUtil.listAll(l);
 				break;
 
-			case "ls_name_asc":
+			case "ls_title_asc":
 				System.out.println("제목순으로 정렬하였습니다.");
 				TodoUtil.listAll(l, "title", 1);
 				break;
 
-			case "ls_name_desc":
+			case "ls_title_desc":
 				System.out.println("제목역순으로 정렬하였습니다.");
 				TodoUtil.listAll(l, "title", 0);
 				break;
@@ -57,7 +57,10 @@ public class TodoMain {
 				System.out.println("날짜순으로 정렬하였습니다.");
 				TodoUtil.listAll(l, "due_date", 0);
 				break;
-
+				
+			case "ls_cate":
+				TodoUtil.listCateAll(l);
+				break;
 			case "find":
 				String keyword = sc.nextLine().trim();
 				TodoUtil.findList(l, keyword);
@@ -67,7 +70,21 @@ public class TodoMain {
 				String cate = sc.nextLine().trim();
 				TodoUtil.findCateList(l, cate);
 				break;
-
+				
+			case "find_importance":
+				String importance = sc.nextLine().trim();
+				TodoUtil.findImportantList(l, importance);
+				break;
+				
+			case "complete":
+				TodoUtil.completeItem(l);
+				System.out.println("완료된 목록으로 체크되었습니다.");
+				break;
+				
+			case "ls_complete":
+				TodoUtil.findComplete(l,1);
+				break;
+				
 			case "help":
 				Menu.displaymenu();
 				break;
